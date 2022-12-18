@@ -1,6 +1,8 @@
 ﻿@page "/CatalogDetails/{id:int}"
 @inject HttpClient HttpClient
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JS
+
 @attribute [Authorize]
 
 @if(CurrentCatalog == null)
@@ -30,6 +32,7 @@ else
         {
             <div class="file">
                 <p>@file.Name</p>
+                <button class="btn btn-primary" type="button" @onclick="@(() => DownloadFile(file.Name))"></button>
             </div>
         }
     </div>
@@ -64,5 +67,12 @@ else
     private async void Upload_Click()
     {
         NavigationManager.NavigateTo("UploadFile");
+    }
+
+    private async Task DownloadFile(string fileName)
+    {
+        var apiAddress = HttpClient.BaseAddress + $"Files/{fileName}";
+
+        await JS.InvokeVoidAsync("SaveFile", apiAddress, fileName);
     }
 }

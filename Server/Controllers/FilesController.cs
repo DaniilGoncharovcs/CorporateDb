@@ -1,13 +1,18 @@
-﻿namespace CorporateDb.Server.Controllers;
+﻿using System.Net;
+using System.Net.Http.Headers;
+namespace CorporateDb.Server.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
 public class FilesController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
-
-    public FilesController(ApplicationDbContext context)
-        => _context = context;
+    private readonly IWebHostEnvironment _hosting;
+    public FilesController(ApplicationDbContext context, IWebHostEnvironment hosting)
+    {
+        _context = context;
+        _hosting = hosting;
+    }
 
 
     [HttpGet("{catalogid}/privatefiles")]
@@ -29,7 +34,7 @@ public class FilesController : ControllerBase
 
 
     [HttpPost("{catalogid}")]
-    [Authorize(Roles = "admin")]
+    //[Authorize(Roles = "admin")]
     public async Task<IActionResult> AddNewFile(CreateFileModelDto fileModelDto, int catalogid)
     {
         if(!ModelState.IsValid)
@@ -48,8 +53,6 @@ public class FilesController : ControllerBase
         var fileModel = new FileModel
         {
             Name = fileModelDto.Name,
-            Size = fileModelDto.Size,
-            Format = fileModelDto.Format,
             CatalogId = catalogid
         };
 
@@ -74,42 +77,46 @@ public class FilesController : ControllerBase
         return NoContent();
     }
 
-    [HttpPost]
-    public async Task<IActionResult> Upload([FromForm] IFormFile file)
+    [HttpPost("upload")]
+    public IActionResult Upload()
     {
-        if (file == null)
-            return BadRequest("File is required");
-
-        var fileName = file.FileName;
-
-        var extension = Path.GetExtension(fileName);
-
-        var directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "Files");
-        var fullPath = Path.Combine(directoryPath, fileName);
-
-        Directory.CreateDirectory(directoryPath);
-        using (var fileStream = new FileStream(fullPath, FileMode.Create, FileAccess.Write))
+        try
         {
-            await file.CopyToAsync(fileStream);
+            var file = Request.Form.Files[0];
+            var folderName = Path.Combine("Files");
+            var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), folderName);
+            if (file.Length > 0)
+            {
+                var fileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
+                var fullPath = Path.Combine(pathToSave, fileName);
+                var dbPath = Path.Combine(folderName, fileName);
+                using (var stream = new FileStream(fullPath, FileMode.Create))
+                {
+                    file.CopyTo(stream);
+                }
+                return Ok(dbPath);
+            }
+            else
+            {
+                return BadRequest();
+            }
         }
-        return Ok();
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex}");
+        }
     }
 
-    [HttpGet("{id}/download")]
-    public async Task<IActionResult> DownloadFile(int id)
+    [HttpGet("Download/{filename}")]
+    public async Task<IActionResult> Download(string fileName)
     {
-        var fileModel = await _context.Files.FirstOrDefaultAsync(f => f.Id == id);
-
-        if (fileModel == null)
-            return BadRequest($"Файла с таким id:{id} не существует");
-
-        var path = Path.Combine(Directory.GetCurrentDirectory(), "Files", fileModel.Name);
-
-        if(System.IO.File.Exists(path))
+        if (string.IsNullOrWhiteSpace(_hosting.WebRootPath))
         {
-            return File(System.IO.File.OpenRead(path), "application/octet-stream", Path.GetFileName(path));
+            _hosting.WebRootPath = Path.Combine(_hosting.ContentRootPath, "Files");
         }
+        string myFilePath = _hosting.WebRootPath + $@"\{fileName}";
+        byte[] fileBytes = await System.IO.File.ReadAllBytesAsync(myFilePath);
+        return File(fileBytes, "application/octet-stream", fileName);
 
-        return BadRequest("Физического файла нет");
     }
 }

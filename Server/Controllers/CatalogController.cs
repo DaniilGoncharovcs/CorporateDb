@@ -38,8 +38,6 @@ public class CatalogController : ControllerBase
                 {
                     Id = file.Id,
                     Name = file.Name,
-                    Format = file.Format,
-                    Size = file.Size,
                     IsPublic = file.IsPublic,
                 };
                 files.Add(fileDto);

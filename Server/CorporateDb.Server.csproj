@@ -27,8 +27,4 @@
     <ProjectReference Include="..\Shared\CorporateDb.Shared.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Files\" />
-  </ItemGroup>
-
 </Project>

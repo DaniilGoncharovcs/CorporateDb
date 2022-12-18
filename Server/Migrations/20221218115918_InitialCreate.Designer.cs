@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CorporateDb.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20221217132454_InitialCreate")]
+    [Migration("20221218115918_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -119,10 +119,10 @@ namespace CorporateDb.Server.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "b6785ef6-5168-4bdf-ad53-fa880361e06d",
+                            Id = "e1a061ff-8e66-4e71-840f-28ed1c8250be",
                             AccessFailedCount = 0,
                             BirthDay = new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            ConcurrencyStamp = "16c531a7-2982-4941-9550-5c098e2d69a3",
+                            ConcurrencyStamp = "67129052-4603-479e-974c-97f7b4d86ec3",
                             Email = "ivanov@mail.ru",
                             EmailConfirmed = false,
                             FirstName = "Иванов",
@@ -131,16 +131,16 @@ namespace CorporateDb.Server.Migrations
                             NormalizedEmail = "IVANOV@MAIL.RU",
                             NormalizedUserName = "IVANOV@MAIL.RU",
                             Otchestvo = "Иванович",
-                            PasswordHash = "AQAAAAIAAYagAAAAEAw/PreC+9Op9+LdFYjC7cSjaHzdHbIiniCeznjSLfuWsSaauNQX1MHsWG/qlX7GbQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEDEUjormB7wjNb/Cn+0QloTbSsuMXZvjbJO8FBDwnLqDxaxzPkP91cws2qlGa/OMhg==",
                             PhoneNumberConfirmed = false,
                             ReadPrivate = true,
-                            SecurityStamp = "e8ec76d6-51c4-4654-802b-0c4ceba42191",
+                            SecurityStamp = "77f7b282-d40b-4384-a874-48e55e418b19",
                             TwoFactorEnabled = false,
                             UserName = "ivanov@mail.ru"
                         });
                 });
 
-            modelBuilder.Entity("CorporateDb.Server.Models.Catalog", b =>
+            modelBuilder.Entity("CorporateDb.Shared.Models.Catalog", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -158,7 +158,7 @@ namespace CorporateDb.Server.Migrations
                     b.ToTable("Catalogs");
                 });
 
-            modelBuilder.Entity("CorporateDb.Server.Models.FileModel", b =>
+            modelBuilder.Entity("CorporateDb.Shared.Models.FileModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -169,9 +169,6 @@ namespace CorporateDb.Server.Migrations
                     b.Property<int>("CatalogId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Format")
-                        .HasColumnType("int");
-
                     b.Property<bool>("IsPublic")
                         .HasColumnType("bit");
 
@@ -179,9 +176,6 @@ namespace CorporateDb.Server.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
-
-                    b.Property<int>("Size")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -360,20 +354,20 @@ namespace CorporateDb.Server.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "2f5f51e1-4134-4f8c-963d-d487c8b93d80",
-                            ConcurrencyStamp = "2f5f51e1-4134-4f8c-963d-d487c8b93d80",
+                            Id = "9eec7772-ba30-4687-908c-06dc39dbfad0",
+                            ConcurrencyStamp = "9eec7772-ba30-4687-908c-06dc39dbfad0",
                             Name = "admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "d3a3da6f-2b4f-4f82-9a48-4b99ddbc8d64",
+                            Id = "1a2e4f88-3690-4914-b490-17e689db3cad",
                             Name = "employee",
                             NormalizedName = "EMPLOYEE"
                         },
                         new
                         {
-                            Id = "ee940fb7-7714-4b39-9beb-8e3fa44b3474",
+                            Id = "f5645d10-7798-4558-ba76-27230bd82187",
                             Name = "private",
                             NormalizedName = "PRIVATE"
                         });
@@ -470,8 +464,8 @@ namespace CorporateDb.Server.Migrations
                     b.HasData(
                         new
                         {
-                            UserId = "b6785ef6-5168-4bdf-ad53-fa880361e06d",
-                            RoleId = "2f5f51e1-4134-4f8c-963d-d487c8b93d80"
+                            UserId = "e1a061ff-8e66-4e71-840f-28ed1c8250be",
+                            RoleId = "9eec7772-ba30-4687-908c-06dc39dbfad0"
                         });
                 });
 
@@ -496,9 +490,9 @@ namespace CorporateDb.Server.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("CorporateDb.Server.Models.FileModel", b =>
+            modelBuilder.Entity("CorporateDb.Shared.Models.FileModel", b =>
                 {
-                    b.HasOne("CorporateDb.Server.Models.Catalog", "Catalog")
+                    b.HasOne("CorporateDb.Shared.Models.Catalog", "Catalog")
                         .WithMany("Files")
                         .HasForeignKey("CatalogId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -558,7 +552,7 @@ namespace CorporateDb.Server.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("CorporateDb.Server.Models.Catalog", b =>
+            modelBuilder.Entity("CorporateDb.Shared.Models.Catalog", b =>
                 {
                     b.Navigation("Files");
                 });
