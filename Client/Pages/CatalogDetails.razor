@@ -1,0 +1,68 @@
+﻿@page "/CatalogDetails/{id:int}"
+@inject HttpClient HttpClient
+@inject NavigationManager NavigationManager
+@attribute [Authorize]
+
+@if(CurrentCatalog == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+   <PageTitle>Каталог: @CurrentCatalog.Name</PageTitle>
+   <h3>Каталог @CurrentCatalog.Name</h3>
+
+   <AuthorizeView Roles="admin">
+        <Authorized>
+            <button type="button" class="btn btn-primary"
+                @onclick=DeleteButton_Click>
+                Удалить каталог
+            </button>
+            <button type="button" class="btn btn-primary"
+                @onclick=Upload_Click>
+                Загрузить файл
+            </button>
+        </Authorized>
+    </AuthorizeView>
+
+    <div class="files">
+        @foreach(var file in Files)
+        {
+            <div class="file">
+                <p>@file.Name</p>
+            </div>
+        }
+    </div>
+    
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    private GetCatalogDetails CurrentCatalog { get; set; }
+    private List<FileModel> Files { get; set; }
+    private bool Private { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        CurrentCatalog = await HttpClient.GetFromJsonAsync<GetCatalogDetails>($"api/Catalog/{Id}");
+        if(Private == true)
+        {
+            Files = await HttpClient.GetFromJsonAsync<List<FileModel>>($"api/Files/{Id}/privatefiles");
+            return;
+        }
+
+        Files = await HttpClient.GetFromJsonAsync<List<FileModel>>($"api/Files/{Id}/publicfiles");
+    }
+
+    private async void DeleteButton_Click()
+    {
+        await HttpClient.DeleteAsync($"api/Catalog/{Id}");
+        NavigationManager.NavigateTo("Catalogs");
+    }
+
+    private async void Upload_Click()
+    {
+        NavigationManager.NavigateTo("UploadFile");
+    }
+}

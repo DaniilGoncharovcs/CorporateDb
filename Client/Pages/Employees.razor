@@ -1,0 +1,63 @@
+﻿@page "/Employees"
+@attribute [Authorize(Roles = "admin")]
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+<PageTitle>Список сотрудников</PageTitle>
+
+<h3>Сотрудники</h3>
+
+@if(EmployeesList == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <button type="button" class="btn btn-primary"
+    @onclick=CreateNewUserButton_Click>Создать нового пользователя</button>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Фамилия</th>
+                <th>Имя</th>
+                <th>Отчество</th>
+                <th>Email</th>
+                <th>Отдел</th>
+                <th>День рождения</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var employee in EmployeesList)
+            {
+                <tr>
+                    <td>@employee.FirstName</td>
+                    <td>@employee.LastName</td>
+                    <td>@employee.Otchestvo</td>
+                    <td>@employee.Email</td>
+                    <td>@employee?.Section</td>
+                    <td>@employee?.BirthDay</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<UserProfileDto>? EmployeesList { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            EmployeesList = await Http.GetFromJsonAsync<List<UserProfileDto>>("api/Employee");
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+    }
+
+    private void CreateNewUserButton_Click()
+        => NavigationManager.NavigateTo("/CreateEmployee");
+}

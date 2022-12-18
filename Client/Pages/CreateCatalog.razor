@@ -1,0 +1,47 @@
+﻿@page "/CreateCatalog"
+@attribute [Authorize(Roles = "admin")]
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+<PageTitle>Создание каталога</PageTitle>
+<h3>Создание каталога</h3>
+
+<EditForm Model="@CatalogDto" OnValidSubmit="Create" style="width:600px">
+    <DataAnnotationsValidator/>
+    <div class="form-group row">
+    <label for="name" class="col-md-2 col-form-label">Название:</label>
+        <div class="col-md-10">
+            <InputText id="name" class="form-control" @bind-Value=@CatalogDto.Name/>
+            <ValidationMessage For="@(() => CatalogDto.Name)"/>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-12 text-right">
+            <button type="submit" class="btn btn-primary">Создать</button>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private CreateCatalogDto CatalogDto { get; set; } = new();
+    private bool showModal;
+    private string errorText;
+
+    private async void Create()
+    {
+        var result = await Http.PostAsJsonAsync<CreateCatalogDto>("api/Catalog", CatalogDto);
+
+        switch (result.StatusCode)
+        {
+            case HttpStatusCode.NoContent:
+                NavigationManager.NavigateTo("/Catalogs");
+                break;
+            case HttpStatusCode.InternalServerError:
+                showModal = true;
+                errorText = "Не удалось добавить каталог";
+                break;
+        }
+    }
+}
+<ModalError Show=@showModal Text=@errorText />

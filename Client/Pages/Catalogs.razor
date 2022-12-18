@@ -1,0 +1,53 @@
+﻿@page "/Catalogs"
+@inject HttpClient HttpClient
+@inject NavigationManager NavigationManager
+@attribute [Authorize]
+
+<PageTitle>Каталоги</PageTitle>
+
+<h3>Каталоги</h3>
+
+@if(CatalogsList == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <AuthorizeView Roles="admin">
+        <Authorized>
+            <button type="button" class="btn btn-primary"
+                @onclick=CreateNewCatalogButton_Click>
+                Создать каталог
+            </button>
+        </Authorized>
+    </AuthorizeView>
+
+    <div class="catalogs">
+        @foreach(var catalog in CatalogsList)
+        {
+            <div class="catalog" @onclick=@(() => OpenCatalog(catalog.Id))>
+                <p>@catalog.Name</p>
+            </div>
+        }
+    </div>
+}
+
+@code
+{
+    private List<Catalog> CatalogsList { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        CatalogsList = await HttpClient.GetFromJsonAsync<List<Catalog>>("api/Catalog");
+    }
+
+    protected void CreateNewCatalogButton_Click()
+    {
+        NavigationManager.NavigateTo("CreateCatalog");
+    }
+
+    protected void OpenCatalog(int id)
+    {
+        NavigationManager.NavigateTo($"CatalogDetails/{id}");
+    }
+}

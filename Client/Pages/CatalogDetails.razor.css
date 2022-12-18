@@ -1,0 +1,12 @@
+﻿.files {
+    display: grid;
+    gap: 20px;
+    margin: 20px;
+}
+
+.file {
+    width: 100px;
+    height: 100px;
+    background-color: rgb(215, 211, 211);
+    cursor: pointer;
+}

@@ -1,0 +1,43 @@
+﻿@page "/Profile/{username}"
+@inject HttpClient Http
+
+<AuthorizeView>
+    <Authorized>
+        @if (UserProfile == null)
+        {
+            <p><em>Loading...</em></p>
+        }
+        else
+        {
+            <h3>Профиль пользователя</h3>
+            <ul>
+                <p>Фамилия: @UserProfile.FirstName</p>
+                <p>Имя: @UserProfile.LastName</p>
+                <p>Отчество: @UserProfile.Otchestvo</p>
+                <p>Отдел: @UserProfile.Section</p>
+                <p>Дата рождения: @UserProfile.BirthDay.Value.</p>
+                <p>Email: @UserProfile.Email</p>
+            </ul>
+        }
+        
+    </Authorized>
+</AuthorizeView>
+
+@code {
+    [Parameter]
+    public string UserName { get; set; }
+
+    private UserProfileDto UserProfile { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            UserProfile = await Http.GetFromJsonAsync<UserProfileDto>($"api/Employee/{UserName}");
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+    }
+}

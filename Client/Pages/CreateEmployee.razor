@@ -1,0 +1,124 @@
+﻿@page "/CreateEmployee"
+@attribute [Authorize(Roles = "admin")]
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+<PageTitle>Добавление нового сотрудника</PageTitle>
+
+<h3>Добавление нового сотрудника</h3>
+
+
+<EditForm Model="@UserForRegistrationDto" OnValidSubmit="CreateUser" style="width:600px">
+    <DataAnnotationsValidator/>
+    <div class="form-group row">
+        <label for="firstname" class="col-md-2 col-form-label">Фамилия:</label>
+        <div class="col-md-10">
+            <InputText id="firstname" class="form-control" @bind-Value=@UserForRegistrationDto.FirstName/>
+            <ValidationMessage For="@(() => UserForRegistrationDto.FirstName)"/>
+        </div>
+    </div>
+    <br />
+    <div class="form-group row">
+        <label for="name" class="col-md-2 col-form-label">Имя:</label>
+        <div class="col-md-10">
+            <InputText id="lastname" class="form-control" @bind-Value=@UserForRegistrationDto.LastName />
+            <ValidationMessage For="@(() => UserForRegistrationDto.LastName)" />
+        </div>
+    </div>
+    <br />
+    <div class="form-group row">
+        <label for="otchestvo" class="col-md-2 col-form-label">Отчество:</label>
+        <div class="col-md-10">
+            <InputText id="name" class="form-control" @bind-Value=@UserForRegistrationDto.Otchestvo/>
+            <ValidationMessage For="@(() => UserForRegistrationDto.Otchestvo)"/>
+        </div>
+    </div>
+    <br />
+    <div class="form-group row">
+        <label for="email" class="col-md-2 col-form-label">Email:</label>
+        <div class="col-md-10">
+            <InputText id="email" class="form-control" @bind-Value=@UserForRegistrationDto.Email type="email"/>
+            <ValidationMessage For="@(() => UserForRegistrationDto.Email)" />
+        </div>
+    </div>
+    <br />
+    <div class="form-group row">
+        <label for="section" class="col-md-2 col-form-label">Отдел:</label>
+        <div class="col-md-10">
+            <InputSelect @bind-Value=@UserForRegistrationDto.Section>
+                <option value="Коммерческий">Коммерческий</option>
+                <option value="Финансовый">Финансовый</option>
+                <option value="Маркетинговый">Маркетинговый</option>
+            </InputSelect>
+            <ValidationMessage For="@(() => UserForRegistrationDto.Email)" />
+        </div>
+    </div>
+    <br />
+    <div class="form-group row">
+        <label for="birthday" class="col-md-2 col-form-label">Дата рождения:</label>
+        <div class="col-md-10">
+            <InputDate @bind-Value=@UserForRegistrationDto.BirthDay id="birthday"/>
+            <ValidationMessage For="@(() => UserForRegistrationDto.BirthDay)" />
+        </div>
+    </div>
+    <br />
+    <div class="form-group row">
+        <label for="password" class="col-md-2 col-form-label">Пароль:</label>
+        <div class="col-md-10">
+            <InputText id="password" class="form-control" @bind-Value=@UserForRegistrationDto.Password />
+            <ValidationMessage For="@(() => UserForRegistrationDto.Password)" />
+        </div>
+    </div>
+    <br />
+    <div class="form-group row">
+        <label for="confirmpassword" class="col-md-2 col-form-label">Подтвердить пароль:</label>
+        <div class="col-md-10">
+            <InputText id="confirmpassword" class="form-control" @bind-Value=@UserForRegistrationDto.ConfirmPassword />
+            <ValidationMessage For="@(() => UserForRegistrationDto.ConfirmPassword)" />
+        </div>
+    </div>
+    <br />
+    <div class="form-group row">
+        <label for="private" class="col-md-2 col-form-label">Доступ к скрытым файлам:</label>
+        <div class="col-md-10">
+            <InputCheckbox id="private" class="form-check" @bind-Value=@UserForRegistrationDto.ReadPrivate/>
+            <ValidationMessage For="@(() => UserForRegistrationDto.ReadPrivate)" />
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-12 text-right">
+            <button type="submit" class="btn btn-primary">Создать</button>
+        </div>
+    </div>
+</EditForm>
+
+@code
+{
+    private UserForRegistrationDto UserForRegistrationDto { get; set; } = new UserForRegistrationDto { BirthDay = DateTime.Now };
+    private bool showModal;
+    private string errorText;
+
+    private async void CreateUser()
+    {
+        var result = await Http.PostAsJsonAsync<UserForRegistrationDto>("api/Employee", UserForRegistrationDto);
+
+        switch (result.StatusCode)
+        {
+            case HttpStatusCode.NoContent:
+                NavigationManager.NavigateTo("/Employees");
+                break;
+            case HttpStatusCode.InternalServerError:
+                showModal = true;
+                errorText = "Не удалось добавить пользователя";
+                break;
+            case HttpStatusCode.BadRequest:
+                showModal = true;
+                errorText = "Email уже занят";
+                break;
+        }
+    }
+
+    
+}
+<ModalError Show=@showModal Text=@errorText/>

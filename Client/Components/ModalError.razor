@@ -1,0 +1,30 @@
+﻿@if(Show == true)
+{
+    <div class="modal" tabindex="-1" role="dialog" style="display:block">
+    <div class="modal-dialog shadow-lg bg-white rounded">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    Ошибка
+                </div>
+            </div>
+            <div class="modal-body">
+                <p>@Text</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" @onclick=CloseModal>Ок</button>
+            </div>
+        </div>
+    </div>
+</div>
+}
+
+@code{
+    [Parameter]
+    public string Text { get; set; }
+    [Parameter]
+    public bool Show { get; set; }
+
+    private void CloseModal()
+        => Show = false;
+}

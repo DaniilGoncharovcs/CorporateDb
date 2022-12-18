@@ -1,0 +1,16 @@
+﻿@page "/"
+
+<PageTitle>Index</PageTitle>
+
+<h1>Добро пожаловать в CorporateDb</h1>
+
+
+<AuthorizeView Roles="admin">
+    <Authorized>
+        Вы успешно авторизированны в системе!
+    </Authorized>
+    <NotAuthorized>
+        <p>Чтобы продолжить работу необходима авторизация.</p>
+        <a href="authentication/login">Войти в систему</a>
+    </NotAuthorized>
+</AuthorizeView>
